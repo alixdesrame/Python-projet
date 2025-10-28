@@ -19,11 +19,25 @@ server = {
     ]
 }
 
+
+def menuprincipal():
+    print('=== Messenger ===')
+    print('x. Leave')
+    print('u.users')
+    print('g.groupes')
+    print('m.messages')
+    print('a.ajout users')
+    print('p.menu principal')
+    choice = input('Select an option: ')
+
+
 print('=== Messenger ===')
 print('x. Leave')
 print('u.users')
 print('g.groupes')
 print('m.messages')
+print('a.ajout users')
+print('p.menu principal')
 choice = input('Select an option: ')
 if choice == 'x':
     print('Bye!')
@@ -36,7 +50,18 @@ if choice == 'g':
 if choice == 'm':
     for i in range (len(server['messages'])):
       print(server['messages'][i]['sender_id'], server['messages'][i]['content'])
+if choice == 'p':
+   menuprincipal()
+if choice == 'a':
+   newid= input('id nouvel utilisateur: ')
+   newname= input('nom nouvel utilisateur: ')
+   newuser= {'id': newid, 'name': newname}
+   server['users'].append(newuser)
+   for i in range (len(server['users'])):
+      print(server['users'][i]['id'],server['users'][i]['name'])
 else:
     print('Unknown option:', choice)
+
+
 
 
