@@ -2,26 +2,17 @@ from datetime import datetime
 import json
 
 
-server = {
-    'users': [
-        {'id': 41, 'name': 'Alice'},
-        {'id': 23, 'name': 'Bob'}
-    ],
-    'channels': [
-        {'id': 12, 'name': 'Town square', 'member_ids': [41, 23]}
-    ],
-    'messages': [
-        {
-            'id': 18,
-            'reception_date': datetime.now(),
-            'sender_id': 41,
-            'channel': 12,
-            'content': 'Hi 👋'
-        }
-    ]
-}
 
 
+
+
+with open('server.json') as file:
+    server = json.load(file)
+
+def save_server():
+   print(server)
+   with open('server.json','w') as file:
+      json.dump(server, file, indent=4)
 
 
 
@@ -54,12 +45,11 @@ def menuprincipal():
 def afficher_users():
    for i in range (len(server['users'])):
       print(server['users'][i]['id'],server['users'][i]['name'])
-   menuprincipal()
    
 def afficher_groupes():
    for i in range (len(server['channels'])):
       print(server['channels'][i]['id'],server['channels'][i]['name'],server['channels'][i]['member_ids'])
-   menuprincipal()
+
    
 def afficher_messages():
    for i in range (len(server['messages'])):
@@ -69,10 +59,12 @@ def afficher_messages():
 def add_users():
    newid= input('id nouvel utilisateur: ')
    newname= input('nom nouvel utilisateur: ')
-   newuser= {'id': newid, 'name': newname}
+   newuser= {'id': int(newid), 'name': newname}
    server['users'].append(newuser)
    afficher_users()
+   save_server()
    menuprincipal()
+   
    
 def add_groupes():
    newidg= input('id nouveau groupe: ')
@@ -82,6 +74,7 @@ def add_groupes():
    newchannel= {'id': newidg, 'name': newnameg, 'member_ids': [newmb]}
    server['channels'].append(newchannel)
    afficher_groupes()
+   save_server()
    menuprincipal()
 
 
@@ -104,9 +97,9 @@ if choice == 'm':
 if choice == 'p':
    menuprincipal()
 if choice == 'a':
-   add_users()
+   add_users() 
 if choice == 'g':
-   add_groupes()
+   add_groupes() 
 else:
     print('Unknown option:', choice)
 

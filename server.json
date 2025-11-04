@@ -1,0 +1,35 @@
+{
+    "users": [
+        {
+            "id": 41,
+            "name": "Alice"
+        },
+        {
+            "id": 23,
+            "name": "Bob"
+        },
+        {
+            "id": "30",
+            "name": "alix"
+        }
+    ],
+    "channels": [
+        {
+            "id": 12,
+            "name": "Town square",
+            "member_ids": [
+                41,
+                23
+            ]
+        }
+    ],
+    "messages": [
+        {
+            "id": 18,
+            "reception_date": 24022005,
+            "sender_id": 41,
+            "channel": 12,
+            "content": "Hi \ud83d\udc4b"
+        }
+    ]
+}
