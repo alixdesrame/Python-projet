@@ -30,6 +30,13 @@
             "sender_id": 41,
             "channel": 12,
             "content": "Hi \ud83d\udc4b"
+        },
+        {
+            "id": 19,
+            "reception_date": 20251209,
+            "sender_id": 30,
+            "channel": 12,
+            "content": "hello"
         }
     ]
 }

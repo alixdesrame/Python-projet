@@ -2,18 +2,19 @@ from datetime import datetime
 import json
 
 
-
-
-
-
 with open('server.json') as file:
     server = json.load(file)
 
 def save_server():
-   print(server)
+   print("save_server:", server)
    with open('server.json','w') as file:
       json.dump(server, file, indent=4)
 
+
+def get_next_message_id():
+    if not server['messages']:
+        return 1
+    return max(m['id'] for m in server['messages']) + 1
 
 
 def menuprincipal():
@@ -24,6 +25,8 @@ def menuprincipal():
     print('m.messages')
     print('a.ajout users')
     print('p.menu principal')
+    print('r.add groupes')
+    print('s.send')
     choice = input('Select an option: ')
     if choice == 'x':
      print('Bye!')
@@ -37,10 +40,13 @@ def menuprincipal():
      menuprincipal()
     if choice == 'a':
      add_users()
-    if choice == 'g':
+    if choice == 'r':
      add_groupes()
+    if choice == 's':
+     send_message()
     else:
      print('Unknown option:', choice)
+
 
 def afficher_users():
    for i in range (len(server['users'])):
@@ -78,29 +84,26 @@ def add_groupes():
    menuprincipal()
 
 
-print('=== Messenger ===')
-print('x. Leave')
-print('u.users')
-print('g.groupes')
-print('m.messages')
-print('a.ajout users')
-print('p.menu principal')
-choice = input('Select an option: ')
-if choice == 'x':
-    print('Bye!')
-if choice == 'u':
-    afficher_users()
-if choice == 'g':
-    afficher_groupes()
-if choice == 'm':
-    afficher_messages()
-if choice == 'p':
+def send_message():
+   afficher_users()
+   sender_id = input('ID de l\'expéditeur: ')
+   afficher_groupes()
+   channel_id = input('ID du canal: ')
+   content = input('Contenu du message: ')
+   new_message_id= get_next_message_id()
+   reception_date = int(datetime.now().strftime('%Y%m%d'))
+   new_message= {'id': new_message_id,'reception_date': reception_date,'sender_id': int(sender_id),'channel': int(channel_id),'content': content }
+   server['messages'].append(new_message)
+   save_server()
+   afficher_messages()
    menuprincipal()
-if choice == 'a':
-   add_users() 
-if choice == 'g':
-   add_groupes() 
-else:
-    print('Unknown option:', choice)
+
+
+
+menuprincipal()
+
+
+
+
 
 
