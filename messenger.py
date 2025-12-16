@@ -25,6 +25,34 @@ class messages:
     self.channel= channel
     self.content= content
 
+with open('server.json') as file:
+  server= json.load(file)
+  userslist=[]
+  for user_dict in server['users']:
+    user_object= Users(user_dict['id'], user_dict['name'])
+    userslist.append(user_object)
+  server['users']= userslist
+  
+
+def sauvegarderjson():
+  server2= {}
+  dico_user_list:list[dict]=[]
+  for user in server['users']:
+    dico_user_list.append({'name':user.name, 'id': user.id})
+  server2['users']= dico_user_list
+  dico_channel_list:list[dict]=[]
+  for channel in server['channels']:
+    dico_channel_list.append({'name': channel.name, 'id': channel.id, 'member_ids': channel.member_ids})
+  server2['channels']= dico_channel_list
+  dico_mess_list:list[dict]=[]
+  for mess in server['messages']:
+    dico_mess_list.append({'id': mess.id, 'reception_date': mess.reception_date, 'sender_id': mess.sender_id, 'channel': mess.channel, 'content': mess.content})
+  server2['messages']=dico_mess_list
+  with open('server.json', 'w') as fichier:
+    json.dump(server2, fichier, indent=4)
+
+
+
 
 def save_server():
    print("save_server:", server)
