@@ -5,6 +5,27 @@ import json
 with open('server.json') as file:
     server = json.load(file)
 
+
+class Users:
+  def __init__(self, name: str, id: int):
+    self.name = name
+    self.id = id
+
+class channels:
+  def _init_(self, id: int, name: str, member_ids: int):
+    self.id= id
+    self.name= name
+    self.member_ids= member_ids
+
+class messages:
+  def _init_(self, id: int, reception_date: int, sender_id: int, channel: int, content: str):
+    self.id= id
+    self.reception_date= reception_date
+    self.sender_id= sender_id
+    self.channel= channel
+    self.content= content
+
+
 def save_server():
    print("save_server:", server)
    with open('server.json','w') as file:
@@ -101,6 +122,8 @@ def send_message():
 
 
 menuprincipal()
+
+
 
 
 
