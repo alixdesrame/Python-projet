@@ -1,5 +1,6 @@
 from datetime import datetime
 import json
+import requests
 
 
 with open('server.json') as file:
@@ -24,6 +25,38 @@ class messages:
     self.sender_id= sender_id
     self.channel= channel
     self.content= content
+
+
+
+class RemoteStorage:
+    def __init__(self):
+        self.base_url = "https://groupe5-python-mines.fr"
+
+    def get_users(self):
+        r = requests.get(f"{self.base_url}/users")
+        return [Users(id=u['id'], name=u['name']) for u in r.json()]
+
+    def get_channels(self):
+        r = requests.get(f"{self.base_url}/channels")
+        return [channels(id=c['id'], name=c['name'], member_ids=c.get('member_ids', [])) for c in r.json()]
+
+    def get_messages(self):
+        r = requests.get(f"{self.base_url}/messages")
+        return [messages(id=m['id'], reception_date=m['reception_date'], sender_id=m['sender_id'], channel=m['channel'], content=m['content']) for m in r.json()]
+
+    def create_user(self, name):
+        requests.post(f"{self.base_url}/users", json={"name": name})
+
+    def create_channel(self, name, member_ids):
+        requests.post(f"{self.base_url}/channels", json={"name": name, "member_ids": member_ids})
+
+    def create_message(self, sender_id, channel_id, content):
+        payload = {"sender_id": int(sender_id), "channel": int(channel_id), "content": content}
+        requests.post(f"{self.base_url}/messages", json=payload)
+
+
+storage = RemoteStorage()
+
 
 with open('server.json') as file:
   server= json.load(file)
@@ -97,10 +130,57 @@ def menuprincipal():
      print('Unknown option:', choice)
 
 
+
+
+def afficher_users():
+    for user in storage.get_users():
+        print(user.id, user.name)
+
+def afficher_groupes():
+    for groupe in storage.get_channels():
+        print(groupe.id, groupe.name, groupe.member_ids)
+
+def afficher_messages():
+    for msg in storage.get_messages():
+        print(msg.sender_id, msg.content)
+    menuprincipal()
+
+
+
+def add_users():
+    newname = input('nom nouvel utilisateur : ')
+    storage.create_user(newname) 
+    afficher_users()
+    menuprincipal()
+
+def add_groupes():
+    newnameg = input('nom nouveau groupe : ')
+    afficher_users()
+    newmb = input('membres du groupe : ')
+    storage.create_channel(newnameg, [int(newmb)])
+    afficher_groupes()
+    menuprincipal()
+
+def send_message():
+    afficher_users()
+    sender_id = input('ID de l\'expéditeur : ')
+    afficher_groupes()
+    channel_id = input('ID du canal : ')
+    content = input('Contenu du message : ')
+    storage.create_message(sender_id, channel_id, content)
+    afficher_messages()
+    menuprincipal()
+
+menuprincipal()
+
+
+'''
 def afficher_users():
    for i in range (len(server['users'])):
-      print(server['users'][i].id,server['users'][i].name)
+     print(server['users'][i].id,server['users'][i].name)
    
+
+
 def afficher_groupes():
    for i in range (len(server['channels'])):
       print(server['channels'][i].id,server['channels'][i].name,server['channels'][i].member_ids)
@@ -110,7 +190,9 @@ def afficher_messages():
    for i in range (len(server['messages'])):
       print(server['messages'][i].sender_id, server['messages'][i].content)
    menuprincipal()
-   
+  ''' 
+
+'''
 def add_users():
    newid= input('id nouvel utilisateur: ')
    newname= input('nom nouvel utilisateur: ')
@@ -146,10 +228,8 @@ def send_message():
    save_server()
    afficher_messages()
    menuprincipal()
+'''
 
-
-
-menuprincipal()
 
 
 
