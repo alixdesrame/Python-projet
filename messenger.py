@@ -99,16 +99,16 @@ def menuprincipal():
 
 def afficher_users():
    for i in range (len(server['users'])):
-      print(server['users'][i]['id'],server['users'][i]['name'])
+      print(server['users'][i].id,server['users'][i].name)
    
 def afficher_groupes():
    for i in range (len(server['channels'])):
-      print(server['channels'][i]['id'],server['channels'][i]['name'],server['channels'][i]['member_ids'])
+      print(server['channels'][i].id,server['channels'][i].name,server['channels'][i].member_ids)
 
    
 def afficher_messages():
    for i in range (len(server['messages'])):
-      print(server['messages'][i]['sender_id'], server['messages'][i]['content'])
+      print(server['messages'][i].sender_id, server['messages'][i].content)
    menuprincipal()
    
 def add_users():
