@@ -43,7 +43,8 @@ class RemoteStorage:
 
     def get_messages(self):
         r = requests.get(f"{self.base_url}/messages")
-        return [messages(id=m['id'], reception_date=m['reception_date'], sender_id=m['sender_id'], channel=m['channel'], content=m['content']) for m in r.json()]
+        return [messages(id=m.get('id'), reception_date=m.get('reception_date'), sender_id=m.get('sender_id'), channel=m.get('channel'), content=m.get('content')) for m in r.json()]
+        
         
     def create_user(self, name):
         response = requests.post(f"{self.base_url}/users/create", json={"name": name})
@@ -55,11 +56,11 @@ class RemoteStorage:
         """requests.post(f"{self.base_url}/users", json={"name": name})"""
 
     def create_channel(self, name, member_ids):
-        requests.post(f"{self.base_url}/channels", json={"name": name, "member_ids": member_ids})
+        requests.post(f"{self.base_url}/channels/create", json={"name": name, "member_ids": member_ids})
 
     def create_message(self, sender_id, channel_id, content):
         payload = {"sender_id": int(sender_id), "channel": int(channel_id), "content": content}
-        requests.post(f"{self.base_url}/messages", json=payload)
+        requests.post(f"{self.base_url}/messages/create", json=payload)
 
 
 storage = RemoteStorage()
