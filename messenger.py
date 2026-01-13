@@ -8,18 +8,18 @@ with open('server.json') as file:
 
 
 class Users:
-  def __init__(self, name: str, id: int):
+  def __init__(self, id: int, name: str):
     self.name = name
     self.id = id
 
 class channels:
-  def _init_(self, id: int, name: str, member_ids: int):
+  def __init__(self, id: int, name: str, member_ids: int):
     self.id= id
     self.name= name
     self.member_ids= member_ids
 
 class messages:
-  def _init_(self, id: int, reception_date: int, sender_id: int, channel: int, content: str):
+  def __init__(self, id: int, reception_date: int, sender_id: int, channel: int, content: str):
     self.id= id
     self.reception_date= reception_date
     self.sender_id= sender_id
@@ -39,13 +39,20 @@ class RemoteStorage:
     def get_channels(self):
         r = requests.get(f"{self.base_url}/channels")
         return [channels(id=c['id'], name=c['name'], member_ids=c.get('member_ids', [])) for c in r.json()]
+        
 
     def get_messages(self):
         r = requests.get(f"{self.base_url}/messages")
         return [messages(id=m['id'], reception_date=m['reception_date'], sender_id=m['sender_id'], channel=m['channel'], content=m['content']) for m in r.json()]
-
+        
     def create_user(self, name):
-        requests.post(f"{self.base_url}/users", json={"name": name})
+        response = requests.post(f"{self.base_url}/users/create", json={"name": name})
+        if response.status_code == 201 or response.status_code == 200:
+            print(f"Succès : Utilisateur '{name}' créé.")
+        else:
+            print(f"Erreur serveur ({response.status_code}): {response.text}")
+
+        """requests.post(f"{self.base_url}/users", json={"name": name})"""
 
     def create_channel(self, name, member_ids):
         requests.post(f"{self.base_url}/channels", json={"name": name, "member_ids": member_ids})
@@ -62,7 +69,7 @@ with open('server.json') as file:
   server= json.load(file)
   userslist=[]
   for user_dict in server['users']:
-    user_object= Users(user_dict['id'], user_dict['name'])
+    user_object = Users(name=user_dict['name'], id=int(user_dict['id']))
     userslist.append(user_object)
   server['users']= userslist
   
@@ -73,7 +80,25 @@ def sauvegarderjson():
   for user in server['users']:
     dico_user_list.append({'name':user.name, 'id': user.id})
   server2['users']= dico_user_list
-  dico_channel_list:list[dict]=[]
+  dico_channel_list = []
+  for channel in server.get('channels', []):
+    if hasattr(channel, 'name'):
+        dico_channel_list.append({'name': channel.name, 'id': channel.id, 'member_ids': channel.member_ids})
+    else:
+        dico_channel_list.append(channel)
+  server2['channels'] = dico_channel_list
+  dico_mess_list = []
+  for mess in server.get('messages', []):
+    if hasattr(mess, 'content'):
+        dico_mess_list.append({'id': mess.id, 'reception_date': mess.reception_date, 'sender_id': mess.sender_id, 'channel': mess.channel, 'content': mess.content})
+    else:
+        dico_mess_list.append(mess)
+  server2['messages'] = dico_mess_list
+  
+  with open('server.json', 'w') as fichier:
+    json.dump(server2, fichier, indent=4)
+
+  """dico_channel_list:list[dict]=[]
   for channel in server['channels']:
     dico_channel_list.append({'name': channel.name, 'id': channel.id, 'member_ids': channel.member_ids})
   server2['channels']= dico_channel_list
@@ -82,21 +107,24 @@ def sauvegarderjson():
     dico_mess_list.append({'id': mess.id, 'reception_date': mess.reception_date, 'sender_id': mess.sender_id, 'channel': mess.channel, 'content': mess.content})
   server2['messages']=dico_mess_list
   with open('server.json', 'w') as fichier:
-    json.dump(server2, fichier, indent=4)
+    json.dump(server2, fichier, indent=4)"""
 
 
 
 
 def save_server():
-   print("save_server:", server)
+   sauvegarderjson()
+
+   """print("save_server:", server)
    with open('server.json','w') as file:
-      json.dump(server, file, indent=4)
+      json.dump(server, file, indent=4)"""
 
 
 def get_next_message_id():
     if not server['messages']:
         return 1
-    return max(m['id'] for m in server['messages']) + 1
+    ids = [m.id if hasattr(m, 'id') else m['id'] for m in server['messages']]
+    return max(ids) + 1
 
 
 def menuprincipal():
@@ -112,35 +140,40 @@ def menuprincipal():
     choice = input('Select an option: ')
     if choice == 'x':
      print('Bye!')
-    if choice == 'u':
+    elif choice == 'u':
      afficher_users()
-    if choice == 'g':
+    elif choice == 'g':
      afficher_groupes()
-    if choice == 'm':
+    elif choice == 'm':
      afficher_messages()
-    if choice == 'p':
+    elif choice == 'p':
      menuprincipal()
-    if choice == 'a':
+    elif choice == 'a':
      add_users()
-    if choice == 'r':
+    elif choice == 'r':
      add_groupes()
-    if choice == 's':
+    elif choice == 's':
      send_message()
     else:
      print('Unknown option:', choice)
-
+     menuprincipal()
 
 
 
 def afficher_users():
+    print("--- Utilisateurs sur le serveur ---")
     for user in storage.get_users():
-        print(user.id, user.name)
+        print(f"ID: {user.id} | Nom: {user.name}")
+    menuprincipal()
 
 def afficher_groupes():
+    print("--- Groupes sur le serveur ---")
     for groupe in storage.get_channels():
         print(groupe.id, groupe.name, groupe.member_ids)
+    menuprincipal()
 
 def afficher_messages():
+    print("--- Messages sur le serveur ---")
     for msg in storage.get_messages():
         print(msg.sender_id, msg.content)
     menuprincipal()
@@ -150,21 +183,24 @@ def afficher_messages():
 def add_users():
     newname = input('nom nouvel utilisateur : ')
     storage.create_user(newname) 
+    print(f"Utilisateur {newname} envoyé au serveur.")
     afficher_users()
     menuprincipal()
 
 def add_groupes():
     newnameg = input('nom nouveau groupe : ')
-    afficher_users()
-    newmb = input('membres du groupe : ')
+    newmb = input('ID du premier membre : ')
     storage.create_channel(newnameg, [int(newmb)])
     afficher_groupes()
     menuprincipal()
 
-def send_message():
-    afficher_users()
-    sender_id = input('ID de l\'expéditeur : ')
+    """newmb = input('membres du groupe : ')
+    storage.create_channel(newnameg, [int(newmb)])
     afficher_groupes()
+    menuprincipal()"""
+
+def send_message():
+    sender_id = input('ID de l\'expéditeur : ')
     channel_id = input('ID du canal : ')
     content = input('Contenu du message : ')
     storage.create_message(sender_id, channel_id, content)
