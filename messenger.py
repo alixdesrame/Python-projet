@@ -60,10 +60,18 @@ class RemoteStorage:
 
     def create_message(self, sender_id, channel_id, content):
         payload = {"sender_id": int(sender_id), "channel": int(channel_id), "content": content}
-        requests.post(f"{self.base_url}/messages/create", json=payload)
+        responses= requests.post(f"{self.base_url}/channels/{channel_id}/messages/post", json=payload)
+        if responses.status_code == 201 or responses.status_code == 200:
+            print(f"Succès : messages envoyé")
+        else:
+            print(f"Erreur serveur ({responses.status_code}): {responses.text}")
 
 
 storage = RemoteStorage()
+
+class LocalStorage:
+   def init()
+
 
 
 with open('server.json') as file:
