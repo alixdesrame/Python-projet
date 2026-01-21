@@ -1,6 +1,7 @@
 from datetime import datetime
 import json
 import requests
+import argparse
 
 
 with open('server.json') as file:
@@ -67,11 +68,78 @@ class RemoteStorage:
             print(f"Erreur serveur ({responses.status_code}): {responses.text}")
 
 
-storage = RemoteStorage()
+
+
+
 
 class LocalStorage:
-   def init()
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.data = {"users": [], "channels": [], "messages": []}
+        self.load()
 
+    def load(self):
+        try:
+            with open(self.file_path, 'r') as file:
+                self.data = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.save()
+
+    def save(self):
+        with open(self.file_path, 'w') as file:
+            json.dump(self.data, file, indent=4)
+
+    def get_users(self):
+        return [Users(id=u['id'], name=u['name']) for u in self.data.get('users', [])]
+
+    def get_channels(self):
+        return [channels(id=c['id'], name=c['name'], member_ids=c.get('member_ids', [])) 
+                for c in self.data.get('channels', [])]
+
+    def get_messages(self):
+        return [messages(id=m.get('id'), reception_date=m.get('reception_date'), 
+                         sender_id=m.get('sender_id'), channel=m.get('channel'), 
+                         content=m.get('content')) 
+                for m in self.data.get('messages', [])]
+
+    def create_user(self, name):
+        users = self.data.get('users', [])
+        new_id = max([u['id'] for u in users], default=0) + 1
+        
+        users.append({"id": new_id, "name": name})
+        self.save()
+        print(f"Succès : Utilisateur '{name}' enregistré dans {self.file_path}.")
+
+    def create_channel(self, name, member_ids):
+        channels_list = self.data.get('channels', [])
+        new_id = max([c['id'] for c in channels_list], default=0) + 1
+        
+        channels_list.append({"id": new_id, "name": name, "member_ids": member_ids})
+        self.save()
+
+    def create_message(self, sender_id, channel_id, content):
+        messages_list = self.data.get('messages', [])
+        new_id = max([m['id'] for m in messages_list], default=0) + 1
+        reception_date = int(datetime.now().strftime('%Y%m%d'))
+        
+        messages_list.append({
+            "id": new_id,
+            "reception_date": reception_date,
+            "sender_id": int(sender_id),
+            "channel": int(channel_id),
+            "content": content
+        })
+        self.save() 
+
+
+def choix():
+   print('LocalStorage')
+   print('RemoteStorage')
+   choice= input('choisir:')
+   if choice=='LocalStorage':
+      storage= LocalStorage(file_path)
+   if choice=='RemoteStorage':
+      storage= RemoteStorage()
 
 
 with open('server.json') as file:
@@ -137,6 +205,7 @@ def get_next_message_id():
 
 
 def menuprincipal():
+    choix()
     print('=== Messenger ===')
     print('x. Leave')
     print('u.users')
@@ -203,10 +272,6 @@ def add_groupes():
     afficher_groupes()
     menuprincipal()
 
-    """newmb = input('membres du groupe : ')
-    storage.create_channel(newnameg, [int(newmb)])
-    afficher_groupes()
-    menuprincipal()"""
 
 def send_message():
     sender_id = input('ID de l\'expéditeur : ')
@@ -219,61 +284,7 @@ def send_message():
 menuprincipal()
 
 
-'''
-def afficher_users():
-   for i in range (len(server['users'])):
-     print(server['users'][i].id,server['users'][i].name)
-   
 
-
-def afficher_groupes():
-   for i in range (len(server['channels'])):
-      print(server['channels'][i].id,server['channels'][i].name,server['channels'][i].member_ids)
-
-   
-def afficher_messages():
-   for i in range (len(server['messages'])):
-      print(server['messages'][i].sender_id, server['messages'][i].content)
-   menuprincipal()
-  ''' 
-
-'''
-def add_users():
-   newid= input('id nouvel utilisateur: ')
-   newname= input('nom nouvel utilisateur: ')
-   newuser= {'id': int(newid), 'name': newname}
-   server['users'].append(newuser)
-   afficher_users()
-   save_server()
-   menuprincipal()
-   
-   
-def add_groupes():
-   newidg= input('id nouveau groupe: ')
-   newnameg= input('nom nouveau groupe: ')
-   afficher_users()
-   newmb= input('membres du groupe: ')
-   newchannel= {'id': newidg, 'name': newnameg, 'member_ids': [newmb]}
-   server['channels'].append(newchannel)
-   afficher_groupes()
-   save_server()
-   menuprincipal()
-
-
-def send_message():
-   afficher_users()
-   sender_id = input('ID de l\'expéditeur: ')
-   afficher_groupes()
-   channel_id = input('ID du canal: ')
-   content = input('Contenu du message: ')
-   new_message_id= get_next_message_id()
-   reception_date = int(datetime.now().strftime('%Y%m%d'))
-   new_message= {'id': new_message_id,'reception_date': reception_date,'sender_id': int(sender_id),'channel': int(channel_id),'content': content }
-   server['messages'].append(new_message)
-   save_server()
-   afficher_messages()
-   menuprincipal()
-'''
 
 
 
