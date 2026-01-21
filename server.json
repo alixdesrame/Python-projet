@@ -11,6 +11,10 @@
         {
             "id": "30",
             "name": "alix"
+        },
+        {
+            "id": 42,
+            "name": "JJ"
         }
     ],
     "channels": [
@@ -20,6 +24,13 @@
             "member_ids": [
                 41,
                 23
+            ]
+        },
+        {
+            "id": 13,
+            "name": "piche",
+            "member_ids": [
+                41
             ]
         }
     ],
@@ -37,6 +48,13 @@
             "sender_id": 30,
             "channel": 12,
             "content": "hello"
+        },
+        {
+            "id": 20,
+            "reception_date": 20260121,
+            "sender_id": 41,
+            "channel": 13,
+            "content": "fuck"
         }
     ]
 }

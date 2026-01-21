@@ -54,7 +54,7 @@ class RemoteStorage:
         else:
             print(f"Erreur serveur ({response.status_code}): {response.text}")
 
-        """requests.post(f"{self.base_url}/users", json={"name": name})"""
+    
 
     def create_channel(self, name, member_ids):
         requests.post(f"{self.base_url}/channels/create", json={"name": name, "member_ids": member_ids})
@@ -104,7 +104,7 @@ class LocalStorage:
 
     def create_user(self, name):
         users = self.data.get('users', [])
-        new_id = max([u['id'] for u in users], default=0) + 1
+        new_id = max([int(u['id']) for u in users], default=0) + 1
         
         users.append({"id": new_id, "name": name})
         self.save()
@@ -137,9 +137,11 @@ def choix():
    print('RemoteStorage')
    choice= input('choisir:')
    if choice=='LocalStorage':
-      storage= LocalStorage(file_path)
+      return LocalStorage('server.json')
    if choice=='RemoteStorage':
-      storage= RemoteStorage()
+      return RemoteStorage()
+   
+storage= choix()
 
 
 with open('server.json') as file:
@@ -175,16 +177,7 @@ def sauvegarderjson():
   with open('server.json', 'w') as fichier:
     json.dump(server2, fichier, indent=4)
 
-  """dico_channel_list:list[dict]=[]
-  for channel in server['channels']:
-    dico_channel_list.append({'name': channel.name, 'id': channel.id, 'member_ids': channel.member_ids})
-  server2['channels']= dico_channel_list
-  dico_mess_list:list[dict]=[]
-  for mess in server['messages']:
-    dico_mess_list.append({'id': mess.id, 'reception_date': mess.reception_date, 'sender_id': mess.sender_id, 'channel': mess.channel, 'content': mess.content})
-  server2['messages']=dico_mess_list
-  with open('server.json', 'w') as fichier:
-    json.dump(server2, fichier, indent=4)"""
+ 
 
 
 
@@ -192,9 +185,7 @@ def sauvegarderjson():
 def save_server():
    sauvegarderjson()
 
-   """print("save_server:", server)
-   with open('server.json','w') as file:
-      json.dump(server, file, indent=4)"""
+ 
 
 
 def get_next_message_id():
@@ -205,7 +196,6 @@ def get_next_message_id():
 
 
 def menuprincipal():
-    choix()
     print('=== Messenger ===')
     print('x. Leave')
     print('u.users')
